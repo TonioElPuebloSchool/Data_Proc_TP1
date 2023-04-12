@@ -16,8 +16,10 @@ object ClimateService {
    * @param description "my awesome sentence contains a key word like climate change"
    * @return Boolean True
    */
-  def isClimateRelated(description: String): Boolean = ???
-
+  def isClimateRelated(description: String): Boolean = {
+    val climateTerms = List("global warming", "IPCC", "climate change", "carbon footprint")
+    climateTerms.exists(term => description.toLowerCase.contains(term.toLowerCase))
+  }
   /**
    * parse a list of raw data and transport it with type into a list of CO2Record
    * if the ppm value is valid (some ppm values are negative (CO2Record's "isValidPpmValue" function))
