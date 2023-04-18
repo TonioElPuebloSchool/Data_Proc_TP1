@@ -6,11 +6,12 @@ import org.scalatest.funsuite.AnyFunSuite
 class ClimateServiceTest extends AnyFunSuite {
   test("containsWordGlobalWarming - non climate related words should return false") {
     assert( ClimateService.isClimateRelated("pizza") == false)
+    assert( ClimateService.isClimateRelated("rien à voir") == false)
   }
 
   test("isClimateRelated - climate related words should return true") {
     assert(ClimateService.isClimateRelated("climate change") == true)
-    assert(ClimateService.isClimateRelated("IPCC"))
+    assert(ClimateService.isClimateRelated("IPCC") == true)
   }
 
   //@TODO
