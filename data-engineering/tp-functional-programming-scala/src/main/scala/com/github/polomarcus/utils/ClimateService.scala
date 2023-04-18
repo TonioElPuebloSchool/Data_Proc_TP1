@@ -13,6 +13,7 @@ object ClimateService {
    * global warming
    * IPCC
    * climate change
+   *
    * @param description "my awesome sentence contains a key word like climate change"
    * @return Boolean True
    */
@@ -20,6 +21,7 @@ object ClimateService {
     val climateTerms = List("global warming", "IPCC", "climate change", "carbon footprint")
     climateTerms.exists(term => description.toLowerCase.contains(term.toLowerCase))
   }
+
   /**
    * parse a list of raw data and transport it with type into a list of CO2Record
    * if the ppm value is valid (some ppm values are negative (CO2Record's "isValidPpmValue" function))
@@ -28,10 +30,14 @@ object ClimateService {
    * you can access to Tuple with myTuple._1, myTuple._2, myTuple._3
    */
   def parseRawData(list: List[(Int, Int, Double)]): List[Option[CO2Record]] = {
+    // Map over the list of records and extract the year, month, and ppm values for each record
+    // If ppm is greater than or equal to 0, create a new CO2Record object and wrap it in a Some
+    // Otherwise, return None
     list.map { record =>
-      val (year, month, ppm) = record
-      // doesnt work : if (CO2Record.isValidPpmValue(ppm)) {
-      if (CO2Record.isValidPpmValue(ppm)) {
+      val year = record._1
+      val month = record._2
+      val ppm = record._3
+      if (ppm >= 0) {
         Some(CO2Record(year, month, ppm))
       } else {
         None
@@ -39,22 +45,59 @@ object ClimateService {
     }
   }
 
-
   /**
    * remove all values from december (12) of every year
    *
    * @param list
    * @return a list
    */
-  def filterDecemberData(list: List[Option[CO2Record]]) : List[CO2Record] = ???
+  def filterDecemberData(list: List[Option[CO2Record]]) : List[CO2Record] = {
+    // Flatten the list to remove any nested lists
+    // Filter out any None values from the list
+    // Filter out any records with a month value equal to 12
+    // Create a copy of each record to avoid modifying the original objects
+    val filteredList = list.flatten.filter(record => record.month != 12).map(_.copy())
 
+    // Output the filtered list
+    filteredList
+  }
 
   /**
    * **Tips**: look at the read me to find some tips for this function
    */
-  def getMinMax(list: List[CO2Record]) : (Double, Double) = ???
+  def getMinMax(list: List[CO2Record]) : (Double, Double) = {
+    // Check if the input list is empty
+    if (list.isEmpty) {
+      // If it is, throw an IllegalArgumentException with a message
+      throw new IllegalArgumentException("Input list is empty")
+    } else {
+      // Otherwise, initialize variables to hold the minimum and maximum ppm values
+      var min = Double.MaxValue
+      var max = Double.MinValue
+      // Iterate over the list and update min and max as necessary
+      for (record <- list) {
+        val ppm = record.ppm
+        if (ppm < min) min = ppm
+        if (ppm > max) max = ppm
+      }
+      // Return a tuple containing the minimum and maximum ppm values
+      (min, max)
+    }
+  }
 
-  def getMinMaxByYear(list: List[CO2Record], year: Int) : (Double, Double) = ???
+  def getMinMaxByYear(list: List[CO2Record], year: Int) : (Double, Double) = {
+    // Filter the list to include only records with the specified year
+    val filteredList = list.filter(record => record.year == year)
+    // Check if the filtered list is empty
+    if (filteredList.isEmpty) {
+      // If it is, throw an IllegalArgumentException with a message indicating that no records were found for the given year
+      throw new IllegalArgumentException(s"No CO2 records found for year $year")
+    } else {
+      // Otherwise, pass the filtered list to the getMinMax function and return the result
+      getMinMax(filteredList)
+    }
+
+  }
 
   /**
    * use this function side src/main/scala/com/polomarcus/main/Main (with sbt run)
@@ -66,8 +109,13 @@ object ClimateService {
    */
   def showCO2Data(list: List[Option[CO2Record]]): Unit = {
     logger.info("Call ClimateService.filterDecemberData here")
+    val filteredList = filterDecemberData(list)
 
     logger.info("Call record.show function here inside a map function")
+    filteredList.foreach(record => println(record.show))
+
+    val noneCount = list.count(_.isEmpty)
+    logger.info(s"Number of None values in the list: $noneCount")
   }
 
   /**
