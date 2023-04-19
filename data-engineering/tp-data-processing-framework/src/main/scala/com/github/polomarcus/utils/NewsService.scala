@@ -53,7 +53,7 @@ object NewsService {
    */
   def filterNews(newsDataset: Dataset[News]) : Dataset[News] = {
     newsDataset.filter { news =>
-      ??? //@TODO complete here
+      news.containsWordGlobalWarming
     }
   }
 
@@ -67,6 +67,6 @@ object NewsService {
    */
   def getNumberOfNews(dataset: Dataset[News]): Long = {
     //@TODO look a the Spark API to know how to count
-    return 1 // code here
+    dataset.count()
   }
 }

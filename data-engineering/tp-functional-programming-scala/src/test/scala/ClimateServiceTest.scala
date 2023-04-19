@@ -34,7 +34,6 @@ class ClimateServiceTest extends AnyFunSuite {
     assert(ClimateService.parseRawData(list1) == output)
   }
 
-  //@TODO
   // Test getMinMax function with a list of CO2Records
   test("getMinMax - basic") {
     // define input data
